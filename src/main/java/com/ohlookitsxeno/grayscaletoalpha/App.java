@@ -1,21 +1,32 @@
 package com.ohlookitsxeno.grayscaletoalpha;
 
 import java.io.File;
+import java.io.IOException;
 
-import javax.lang.model.util.ElementScanner14;
+import javax.imageio.ImageIO;
+
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public class App 
 {
     static String filePath = "";
     static Boolean fileExists = false;
+    static BufferedImage image = null;
+    static BufferedImage finalImage = null;
     public static void main( String[] args )
     {
         arguments(args);
 
         if(fileExists)
-            System.out.println("File '" + filePath + "' loaded.");
+            loadImage();
         else
             System.out.println("Error: No valid file, exiting.");
+
+        if(image != null){
+            finalImage = image;
+            saveImage(finalImage);
+        }
     }
 
     //reads arguments
@@ -46,5 +57,27 @@ public class App
             filePath = path; //set main variable
         else
             System.out.println("Error: File '" + path + "' does not exist.");
+    }
+
+    public static void loadImage(){
+        try {
+            image = ImageIO.read(new File(filePath));
+        } catch(IOException e){
+            System.out.println("Error: Failed to read file");
+        }
+        if(image != null)
+            System.out.println("Image '" + filePath + "' loaded.");
+        else
+            System.out.println("Error: Image not a valid type.");
+    }
+
+    public static void saveImage(BufferedImage save){
+        try {
+            File out = new File("save.png");
+            ImageIO.write(save, "png", out);
+            System.out.println("Success!");
+        } catch (IOException e){
+            System.out.println("Error: Writing to image failed.");
+        }
     }
 }
