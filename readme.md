@@ -5,3 +5,4 @@
 
 ## Arguments
 - -file \<file> : reads file.
+- -out \<file> : sets output file.
