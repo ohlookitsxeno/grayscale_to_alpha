@@ -4,5 +4,5 @@
 *Grayscale to alpha* is a simple command-line java program that extracts the grayscale values from images and maps them to the alpha channel.
 
 ## Arguments
-- -file \<file> : reads file.
-- -out \<file> : sets output file.
+- -file \<file> : reads file. (also -f)
+- -output \<file> : sets output file. (also -out, -o)
