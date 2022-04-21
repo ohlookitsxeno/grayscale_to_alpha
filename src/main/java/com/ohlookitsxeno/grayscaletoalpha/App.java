@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 public class App 
@@ -15,6 +14,7 @@ public class App
     static String [] fileOut = {null,null};
     static BufferedImage image = null;
     static BufferedImage finalImage = null;
+    static Boolean deleteBlack = false;
     public static void main( String[] args )
     {
         arguments(args);
@@ -28,7 +28,7 @@ public class App
 
         
         if(image != null && fileOut[0] != null){
-            finalImage = image;
+            finalImage = greyscaleToAlpha(image);
             saveImage(finalImage);
         }
     }
@@ -36,22 +36,41 @@ public class App
     //reads arguments
     public static void arguments(String[] args){
         for(int anum = 0; anum < args.length; anum++){
+
             String arg = args[anum];
-            if(arg.equals("-file") || arg.equals("-f")){
-                if(anum < args.length - 1) //checks if next argument exists
-                    loadFile(args[++anum]);
-                else
-                    System.out.println("Error: Missing file argument. Usage: " + arg + " <file>");
-            }else if(arg.equals("-output") || arg.equals("-out") || arg.equals("-o")){
-                if(anum < args.length - 1){ //checks if next argument exists
-                    if(setOutput(args[++anum]))
-                        System.out.println("Output Successfully set to " + fileOut[0] + "." + fileOut[1]);
+
+            switch(arg){
+                case "-file":
+                case "-f":
+                    if(anum < args.length - 1) //checks if next argument exists
+                        loadFile(args[++anum]);
                     else
-                        System.out.println("Error: Invalid output format.");
-                }else
-                    System.out.println("Error: Missing output argument. Usage: " + arg + " <name.ext>");
-            }else
+                        System.out.println("Error: Missing file argument. Usage: " + arg + " <file>");
+                    break;
+                case "-output":
+                case "-out":
+                case "-o":
+                    if(anum < args.length - 1){ //checks if next argument exists
+                        if(setOutput(args[++anum]))
+                            System.out.println("Output Successfully set to " + fileOut[0] + "." + fileOut[1]);
+                        else
+                            System.out.println("Error: Invalid output format.");
+                    }else
+                        System.out.println("Error: Missing output argument. Usage: " + arg + " <name.ext>");
+                    break;
+                case "-black":
+                case "-bl":
+                case "-b":
+                    deleteBlack = true;
+                    break;
+                case "-white":
+                case "-wh":
+                case "-w":
+                    deleteBlack = false;
+                    break;
+                default:
                 System.out.println("Note: Unrecognized argument '" + arg + "', Ignoring.");
+            }
         }
     } 
 
@@ -104,5 +123,25 @@ public class App
         } catch (IOException e){
             System.out.println("Error: Writing to image failed.");
         }
+    }
+
+    public static BufferedImage greyscaleToAlpha(BufferedImage img){
+        BufferedImage out = new BufferedImage(img.getWidth(),img.getHeight(),BufferedImage.TYPE_INT_ARGB);
+        for(int x = 0; x < img.getWidth(); x++){
+            for(int y = 0; y < img.getHeight(); y++){
+                int color = img.getRGB(x,y);
+                int r = (color >> 16) & 255;
+                int g = (color >> 8) & 255;
+                int b = color & 255;
+                int gray = (r+g+b)/3;
+                int fincolor;
+                if(deleteBlack)
+                    fincolor = (gray<<24) | (0xff << 16) | (0xff << 8) | 0xff;
+                else
+                    fincolor = (255-gray<<24);
+                out.setRGB(x,y,fincolor);
+            }
+        }
+        return out;
     }
 }
